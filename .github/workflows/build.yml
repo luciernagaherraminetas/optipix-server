@@ -1,0 +1,45 @@
+name: Build OptiPix
+
+on:
+push:
+tags:
+- 'v*'
+
+jobs:
+
+build-mac:
+runs-on: macos-latest
+
+```
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 20
+
+  - run: npm install
+
+  - run: npm run dist
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+
+build-win:
+runs-on: windows-latest
+
+```
+steps:
+  - uses: actions/checkout@v4
+
+  - uses: actions/setup-node@v4
+    with:
+      node-version: 20
+
+  - run: npm install
+
+  - run: npm run dist
+    env:
+      GH_TOKEN: ${{ secrets.GH_TOKEN }}
+```
+

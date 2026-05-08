@@ -1,0 +1,96 @@
+{
+  "name": "optipix",
+  "version": "1.0.1",
+  "main": "main.js",
+  "productName": "OptiPix",
+  "description": "Optimización inteligente de imágenes",
+  "author": "Juan Manuel Alonso",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.7.2",
+    "electron": "^28.2.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.3",
+    "nodemailer": "^8.0.7",
+    "sharp": "^0.33.5"
+  },
+  "build": {
+    "appId": "com.optipix.app",
+    "productName": "OptiPix",
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "category": "public.app-category.photography",
+      "icon": "icon.icns"
+    },
+
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
+    },
+
+    "dmg": {
+      "sign": false,
+
+      "window": {
+      "width": 700,
+      "height": 500
+    },
+
+    "contents": [
+      {
+        "x": 170,
+        "y": 250
+      },
+      {
+        "x": 500,
+        "y": 250,
+        "type": "link",
+        "path": "/Applications"
+      },
+      {
+        "x": 335,
+        "y": 90,
+        "type": "file",
+        "path": "manual/Manual-Instalacion-OptiPix.pdf"
+      }
+    ]
+  },
+
+  "publish": [
+    {
+      "provider": "github",
+      "owner": "juanmanuelalonso",
+      "repo": "optipix-releases"
+    }
+  ],
+
+    "asar": true,
+    "npmRebuild": false,
+    "buildDependenciesFromSource": true,
+    "asarUnpack": [
+      "node_modules/sharp/**/*",
+      "node_modules/@img/**/*"
+    ],
+    "files": [
+      "**/*",
+      "manual/**/*",
+      "node_modules/sharp/**/*",
+      "node_modules/@img/**/*"
+    ]
+  }
+}

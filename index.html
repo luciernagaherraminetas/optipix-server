@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>OptiPix</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont;
+      background: linear-gradient(135deg, #1a1a1a, #0f0f0f);
+      color: white;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      height: 100vh;
+    }
+
+    body {
+      overflow: hidden;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      
+      gap: 18px;
+    }
+
+    .pro-card {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .pro-card h3 {
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .pro-card input {
+      width: 80%;
+      margin: 10px auto;
+      display: block;
+    }
+
+    .pro-card .btn {
+      width: 90%;
+      margin: 5px auto;
+    }
+
+    .card > * + * {
+      margin-top: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(20px);
+      padding: 30px;
+      border-radius: 20px;
+      width: 100%;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    }
+
+    h1 {
+      margin-bottom: 5px;
+      font-size: 22px;
+    }
+
+    p {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: white;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    button:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .quality-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 10px;
+      background: #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00ff99, #00cc66);
+      transition: width 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .top-info {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    #status {
+      font-size: 12px;
+      text-align: left;
+      width: 100%;
+      white-space: pre-line;
+    }
+
+    /* 🔥 MINI PREVIEW */
+    #miniPreviewContainer {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 100px;
+      height: 100px;
+      pointer-events: none;
+    }
+
+    #miniPreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 14px;
+
+      opacity: 0;
+      transform: translateY(30px) scale(0.85);
+      transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    #miniPreview.show {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+
+    #miniPreview.hide {
+      opacity: 0;
+      transform: translateY(-50px) scale(0.7);
+    }
+
+    button {
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+      transition: 0.5s;
+    }
+
+    button:hover::after {
+      left: 100%;
+    }
+
+    body.dragover {
+      outline: 2px dashed #00ff99;
+      background: radial-gradient(circle, #1a1a1a, #0f0f0f);
+    }
+
+    .card {
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    #status {
+      transition: all 0.3s ease;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.6);
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      width: 300px;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+/* --- Glass card (ya tienes base, esto la mejora) --- */
+.card {
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow:
+    0 10px 40px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+/* --- Botones premium --- */
+.btn {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.06));
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .15s ease, background .2s ease, opacity .2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+}
+
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Variantes */
+.btn-secondary {
+  background: linear-gradient(180deg, #60a5fa, #3b82f6);
+  color: #04142b;
+  border: none;
+}
+.btn-danger {
+  background: linear-gradient(180deg, #f87171, #ef4444);
+  color: #2b0404;
+  border: none;
+}
+
+/* Botones en fila */
+.row {
+  display: flex;
+  gap: 10px;
+}
+.row .btn {
+  flex: 1;
+}
+
+/* --- Barra de progreso premium --- */
+.progress-bar {
+  margin-top: 14px;
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #60a5fa);
+  transition: width .25s ease;
+}
+
+/* brillo animado */
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -40%;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+  animation: shimmer 1.4s infinite;
+}
+
+@keyframes shimmer {
+  0% { left: -40%; }
+  100% { left: 120%; }
+}
+
+/* --- Estado --- */
+.status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #bdbdbd;
+  min-height: 18px;
+}
+
+/* Estados visuales del card */
+.card.processing {
+  border: 1px solid rgba(250, 204, 21, 0.4);
+  box-shadow: 0 0 20px rgba(250, 204, 21, 0.15);
+}
+.card.paused {
+  border-color: rgba(250,204,21,0.35);
+}
+.card.cancelled {
+  border-color: rgba(239,68,68,0.35);
+}
+
+/* mini preview ya lo tienes; solo mejora suavidad */
+#miniPreview {
+  transition: all .35s ease;
+}
+
+#optBtn {
+  margin-top: 15px;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <div class="app-container">
+
+    <div class="card">
+      <h1>OptiPix</h1>
+      <p>Optimización inteligente de imágenes</p>
+
+      <p id="proStatus" style="display:none; color:#4ade80;">
+        ✅ PRO ACTIVADO
+      </p>
+
+      <p id="selectedFolder" style="font-size:11px; color:#777;"></p>
+
+<div class="card pro-card" id="proCard">
+  <h3>Activar PRO</h3>
+
+  <input id="licenseInput" placeholder="Ingresa tu licencia" />
+
+  <button class="btn btn-primary" onclick="activateLicense()">
+    Activar
+  </button>
+
+  <button class="btn btn-secondary" onclick="buyPro()">
+    Comprar PRO
+  </button>
+</div>
+
+<div class="stack">
+  <button class="btn" onclick="selectFiles()">Seleccionar carpeta</button>
+  <button class="btn" onclick="selectOutputFolder()">Elegir carpeta destino</button>
+</div>
+
+<p id="outputFolder" style="font-size:11px; color:#777;"></p>
+
+<div class="row" style="margin-top:10px;">
+  <button class="btn" onclick="setQuality('minima')">Minima</button>
+  <button class="btn" onclick="setQuality('normal')">Normal</button>
+  <button class="btn" onclick="setQuality('alta')">Alta</button>
+</div>
+
+<button id="optBtn" class="btn" onclick="optimize()" style="margin-top:15px;">
+  Optimizar
+</button>
+
+<div class="row" style="margin-top:10px;">
+  <button class="btn" onclick="pauseProcess()">⏸</button>
+  <button class="btn btn-secondary" onclick="resumeProcess()">▶</button>
+  <button class="btn btn-danger" onclick="cancelProcess()">✖</button>
+</div>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progressBar"></div>
+</div>
+
+<div class="row" style="justify-content:space-between; margin-top:6px;">
+  <span class="status" id="status">Listo</span>
+  <span class="status" id="progressText">0%</span>
+</div>
+
+    </div>
+
+  </div>
+
+  <script src="./renderer.js"></script>
+
+</body>
+</html>

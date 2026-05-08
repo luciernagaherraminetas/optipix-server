@@ -1,0 +1,161 @@
+console.log("RENDERER OK");
+const { ipcRenderer } = require('electron');
+const sharp = require('sharp');
+const fs = require('fs');
+const path = require('path');
+const pLimit = require('p-limit');
+const limit = pLimit(4); // 🔥 puedes subir a 6 si tu Mac aguanta
+
+let selectedFolder = null;
+let selectedMode = 'normal'; // 🔥 importante
+
+window.selectFiles = async function () {
+  const paths = await ipcRenderer.invoke('select-folder');
+
+  if (!paths || paths.length === 0) return;
+
+  selectedFolder = paths[0];
+
+  document.getElementById('status').innerText = "Carpeta seleccionada ✅";
+
+  document.getElementById('selectedFolder').innerText =
+    "📁 " + path.basename(selectedFolder);
+
+  document.getElementById('optBtn').disabled = false;
+
+};
+
+function getImagesFromFolder(folder) {
+  let results = [];
+
+  const files = fs.readdirSync(folder);
+
+  for (let file of files) {
+    if (file.startsWith(".")) continue;
+
+    const fullPath = path.join(folder, file);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      results = results.concat(getImagesFromFolder(fullPath));
+    } else {
+      const ext = path.extname(fullPath).toLowerCase();
+      if (['.jpg', '.jpeg', '.png', '.heic', '.webp'].includes(ext)) {
+        results.push(fullPath);
+      }
+    }
+  }
+
+  return results;
+}
+
+window.setQuality = function(mode) {
+  selectedMode = mode;
+
+  document.getElementById('status').innerText =
+    "Modo: " + mode.toUpperCase();
+};
+
+function getQualityMode(mode) {
+  switch(mode) {
+    case 'minima': return 60;
+    case 'normal': return 80;
+    case 'alta': return 90;
+    default: return 80;
+  }
+}
+
+async function compressSmart(inputPath, outputPath) {
+  const quality = getQualityMode(selectedMode);
+
+  await sharp(inputPath)
+    .jpeg({ 
+      quality: quality,
+      mozjpeg: true
+    })
+    .toFile(outputPath);
+
+  return quality;
+}
+
+window.optimize = async function () {
+  if (!selectedFolder) {
+    alert("Selecciona una carpeta");
+    return;
+  }
+
+  const desktopPath = await ipcRenderer.invoke('get-desktop');
+  const outputBase = path.join(desktopPath, "Archivos Optimizados");
+  const folderName = path.basename(selectedFolder);
+  const outputDir = path.join(outputBase, folderName);
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  const images = getImagesFromFolder(selectedFolder);
+
+  if (images.length === 0) {
+    alert("No se encontraron imágenes");
+    document.getElementById('status').innerText = "❌ Carpeta sin imágenes";
+    return;
+  }
+
+  let huboErrores = false;
+  let totalOriginal = 0;
+  let totalOptimizado = 0;
+
+  for (let i = 0; i < images.length; i++) {
+    const filePath = images[i];
+    const baseName = path.basename(filePath, path.extname(filePath));
+    const output = path.join(outputDir, baseName + "-opt.jpg");
+    const beforeSize = fs.statSync(filePath).size;
+
+    try {
+      await compressSmart(filePath, output);
+      console.log("✅ Guardado:", output);
+      
+      const afterSize = fs.statSync(output).size;
+
+      totalOriginal += beforeSize;
+      totalOptimizado += afterSize;
+
+    } catch (err) {
+      console.log("❌ ERROR:", err);
+      console.log("Archivo:", filePath);
+      huboErrores = true;
+    }
+
+    // progreso
+    const percent = Math.round(((i + 1) / images.length) * 100);
+    document.getElementById('progressBar').style.width = percent + "%";
+    document.getElementById('progressText').innerText = percent + "%";
+
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  const savedBytes = totalOriginal - totalOptimizado;
+  const savedMB = (savedBytes / 1024 / 1024).toFixed(2);
+  const percent = ((savedBytes / totalOriginal) * 100).toFixed(1);
+
+  if (huboErrores) {
+    document.getElementById('status').innerText = "⚠️ Completado con algunos errores";
+  } else {
+    document.getElementById('status').innerText =
+      `✅ Optimización completada\n💾 Ahorraste: ${savedMB} MB (${percent}%)`;
+  }
+
+  ipcRenderer.invoke('open-folder', outputDir);
+
+  setTimeout(() => {
+    document.getElementById('progressBar').style.width = "0%";
+    document.getElementById('progressText').innerText = "0%";
+  }, 2000);
+};
+
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('optBtn');
+  if (btn) btn.disabled = true;
+});
+
+  
