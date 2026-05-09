@@ -1,6 +1,6 @@
 {
   "name": "optipix",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "main.js",
   "productName": "OptiPix",
   "description": "Optimización inteligente de imágenes",
@@ -75,7 +75,7 @@
     {
       "provider": "github",
       "owner": "juanmanuelalonso",
-      "repo": "optipix-releases"
+      "repo": "optipix-server"
     }
   ],
 
