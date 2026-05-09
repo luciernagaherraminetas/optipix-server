@@ -5,21 +5,28 @@ on:
     tags:
       - 'v*'
 
+permissions:
+  contents: write
+
 jobs:
 
   build-mac:
     runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm run dist
+      - name: Build app
+        run: npm run dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
@@ -27,14 +34,19 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm install
+      - name: Install dependencies
+        run: npm install
 
-      - run: npm run dist
+      - name: Build app
+        run: npm run dist
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
