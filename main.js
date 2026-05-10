@@ -1,5 +1,4 @@
 const path = require('path');
-const { autoUpdater } = require('electron-updater');
 const {
   app,
   BrowserWindow,
@@ -42,6 +41,47 @@ app.whenReady().then(() => {
 
 });
 
+autoUpdater.on("checking-for-update", () => {
+  console.log("Buscando actualizaciones...");
+});
+
+autoUpdater.on("update-available", () => {
+  console.log("Actualización disponible.");
+});
+
+autoUpdater.on("update-not-available", () => {
+  console.log("No hay actualizaciones.");
+});
+
+autoUpdater.on("error", (err) => {
+  console.log("Error updater:", err);
+});
+
+autoUpdater.on("download-progress", (progressObj) => {
+
+  let logMessage = "Velocidad: " + progressObj.bytesPerSecond;
+  logMessage += " - Descargado " + progressObj.percent + "%";
+
+  console.log(logMessage);
+
+});
+
+autoUpdater.on("update-downloaded", () => {
+
+  dialog.showMessageBox({
+    type: "info",
+    title: "Actualización lista",
+    message: "OptiPix descargó una nueva versión.",
+    detail: "Reinicia la aplicación para instalarla.",
+    buttons: ["Reiniciar ahora"]
+  }).then(() => {
+
+    autoUpdater.quitAndInstall();
+
+  });
+
+});
+
 // seleccionar carpeta
 ipcMain.handle('select-folder', async () => {
   const result = await dialog.showOpenDialog({
@@ -69,3 +109,4 @@ ipcMain.handle('select-output-folder', async () => {
 
   return result.filePaths;
 });
+
