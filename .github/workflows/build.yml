@@ -21,15 +21,10 @@ jobs:
 
       - run: npm install
 
-      - name: Build App
+      - name: Build Mac
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run dist
-
-      - name: Publish Mac
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx electron-builder --mac --publish always
 
   build-win:
 
@@ -45,9 +40,7 @@ jobs:
 
       - run: npm install
 
-      - run: npm run dist
-
-      - name: Publish Win
+      - name: Build Win
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: npx electron-builder --win --publish always
+        run: npm run dist
