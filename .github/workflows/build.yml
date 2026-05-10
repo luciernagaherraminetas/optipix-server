@@ -21,7 +21,10 @@ jobs:
 
       - run: npm install
 
-      - run: npm run dist
+      - name: Build App
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npm run dist
 
       - name: Publish Mac
         env:
