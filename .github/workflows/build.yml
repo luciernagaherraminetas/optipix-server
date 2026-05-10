@@ -5,48 +5,46 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-
 jobs:
 
   build-mac:
+
     runs-on: macos-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Build app
-        run: npm run dist
+      - run: npm run dist
+
+      - name: Publish Mac
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: npx electron-builder --mac --publish always
 
   build-win:
+
     runs-on: windows-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm install
+      - run: npm install
 
-      - name: Build app
-        run: npm run dist
+      - run: npm run dist
+
+      - name: Publish Win
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-
+        run: npx electron-builder --win --publish always
