@@ -40,7 +40,7 @@
 
     "win": {
       "target": "nsis",
-      "icon": "icon.ico"
+      "icon": "icons.ico"
     },
 
     "dmg": {
