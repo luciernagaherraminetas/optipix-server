@@ -10,6 +10,7 @@ const {
 } = require('electron');
 
 const { autoUpdater } = require('electron-updater');
+const log = require('electron-log');
 
 function createWindow() {
   const { screen } = require('electron');
@@ -35,11 +36,17 @@ function createWindow() {
   win.loadFile('index.html');
 }
 
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = 'info';
+
 app.whenReady().then(() => {
 
   createWindow();
 
-  autoUpdater.checkForUpdatesAndNotify();
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.checkForUpdates();
 
 });
 

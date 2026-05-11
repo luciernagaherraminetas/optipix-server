@@ -1,38 +1,33 @@
 {
   "name": "optipix",
-  "version": "1.1.9",
+  "version": "1.1.11",
   "main": "main.js",
   "productName": "OptiPix",
   "description": "Optimización inteligente de imágenes",
   "author": "Juan Manuel Alonso",
-
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
     "dist": "electron-builder",
     "postinstall": "electron-builder install-app-deps"
   },
-
   "devDependencies": {
     "@electron/rebuild": "^3.7.2",
     "electron": "^28.2.0",
     "electron-builder": "^24.13.3"
   },
-
   "dependencies": {
+    "electron-log": "^5.4.3",
     "electron-updater": "^6.8.3",
     "nodemailer": "^8.0.7",
     "sharp": "^0.33.5"
   },
-
   "build": {
     "appId": "com.optipix.app",
     "productName": "OptiPix",
-
     "directories": {
       "buildResources": "."
     },
-
     "mac": {
       "target": [
         {
@@ -45,27 +40,22 @@
       "category": "public.app-category.photography",
       "icon": "icon.icns"
     },
-
     "win": {
       "target": "nsis",
       "icon": "icons.ico"
     },
-
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true
     },
-
     "dmg": {
       "sign": false,
-
       "window": {
         "width": 700,
         "height": 500
       },
-
       "contents": [
         {
           "x": 170,
@@ -85,7 +75,6 @@
         }
       ]
     },
-
     "publish": [
       {
         "provider": "github",
@@ -93,17 +82,14 @@
         "repo": "optipix-server"
       }
     ],
-
     "asar": true,
     "npmRebuild": false,
     "buildDependenciesFromSource": true,
-
     "asarUnpack": [
       "**/sharp/**/*",
       "**/@img/**/*",
       "**/*.node"
     ],
-
     "files": [
       "**/*",
       "manual/**/*",
@@ -111,7 +97,6 @@
       "node_modules/sharp/**/*",
       "node_modules/@img/**/*"
     ],
-
     "extraResources": [
       {
         "from": "manual_windows",
@@ -126,6 +111,5 @@
         "to": "node_modules/@img"
       }
     ]
-
   }
 }
