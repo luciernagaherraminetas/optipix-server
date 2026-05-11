@@ -1,3 +1,5 @@
+const sharp = require('sharp');
+const fs = require('fs');
 const path = require('path');
 const {
   app,
@@ -110,3 +112,71 @@ ipcMain.handle('select-output-folder', async () => {
   return result.filePaths;
 });
 
+ipcMain.handle('sharp-test', async () => {
+
+  try {
+
+    const buffer = await sharp({
+      create: {
+        width: 100,
+        height: 100,
+        channels: 3,
+        background: { r: 255, g: 0, b: 0 }
+      }
+    })
+    .png()
+    .toBuffer();
+
+    return {
+      success: true,
+      size: buffer.length
+    };
+
+  } catch (err) {
+
+    console.error(err);
+
+    return {
+      success: false,
+      error: err.message
+    };
+
+  }
+
+});
+
+ipcMain.handle('compress-image', async (event, data) => {
+
+  try {
+
+    const {
+      inputPath,
+      outputPath,
+      quality
+    } = data;
+
+    sharp.cache(false);
+
+    await sharp(inputPath)
+      .jpeg({
+        quality,
+        mozjpeg: true
+      })
+      .toFile(outputPath);
+
+    return {
+      success: true
+    };
+
+  } catch (err) {
+
+    console.error(err);
+
+    return {
+      success: false,
+      error: err.message
+    };
+
+  }
+
+});

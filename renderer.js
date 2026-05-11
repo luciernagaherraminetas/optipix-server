@@ -1,4 +1,5 @@
 console.log("RENDERER OK");
+
 const { ipcRenderer } = require('electron');
 const fs = require('fs');
 const path = require('path');
@@ -6,20 +7,12 @@ const os = require('os');
 const crypto = require('crypto');
 
 let selectedFolder = null;
-let selectedMode = 'normal'; // 🔥 importante
+let selectedMode = 'normal';
 let isPaused = false;
 let isCancelled = false;
 let isProcessing = false;
 let currentJobId = 0;
 let outputFolder = null;
-let sharp;
-
-try {
-  sharp = require('sharp');
-  console.log("✅ Sharp cargado");
-} catch (err) {
-  console.error("❌ Sharp no pudo cargar:", err);
-}
 
 function checkTrial() {
   let start = localStorage.getItem('trialStart');
@@ -109,23 +102,23 @@ function getQualityMode(mode) {
 
 async function compressSmart(inputPath, outputPath) {
 
-  if (!sharp) {
-    alert("Sharp no cargó correctamente");
-    return;
-  }
-
-  sharp.cache(false);
-
   const quality = getQualityMode(selectedMode);
 
-  await sharp(inputPath)
-    .jpeg({
-      quality: quality,
-      mozjpeg: true
-    })
-    .toFile(outputPath);
+  const result = await ipcRenderer.invoke(
+    'compress-image',
+    {
+      inputPath,
+      outputPath,
+      quality
+    }
+  );
+
+  if (!result.success) {
+    throw new Error(result.error);
+  }
 
   return quality;
+
 }
 
 function getUniqueFolder(basePath) {
@@ -475,6 +468,26 @@ async function processInBatches(items, batchSize, fn, jobId) {
     await new Promise(r => setTimeout(r, 0));
   }
 }
+
+async function testSharp() {
+
+  const result = await ipcRenderer.invoke('sharp-test');
+
+  console.log(result);
+
+  if (result.success) {
+
+    console.log("✅ Sharp funcionando");
+
+  } else {
+
+    alert("Sharp falló: " + result.error);
+
+  }
+
+}
+
+testSharp();
 
 window.activateLicense = async function () {
   const licenseKey = document.getElementById('licenseInput').value.trim();

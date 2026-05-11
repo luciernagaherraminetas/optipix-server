@@ -38,7 +38,6 @@
         {
           "target": "dmg",
           "arch": [
-            "x64",
             "arm64"
           ]
         }
@@ -100,8 +99,9 @@
     "buildDependenciesFromSource": true,
 
     "asarUnpack": [
-      "node_modules/sharp/**/*",
-      "node_modules/@img/**/*"
+      "**/sharp/**/*",
+      "**/@img/**/*",
+      "**/*.node"
     ],
 
     "files": [
@@ -116,7 +116,16 @@
       {
         "from": "manual_windows",
         "to": "manual_windows"
+      },
+      {
+        "from": "node_modules/sharp",
+        "to": "node_modules/sharp"
+      },
+      {
+        "from": "node_modules/@img",
+        "to": "node_modules/@img"
       }
     ]
+
   }
 }
