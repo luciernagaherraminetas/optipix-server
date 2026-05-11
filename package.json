@@ -1,6 +1,6 @@
 {
   "name": "optipix",
-  "version": "1.1.7",
+  "version": "1.1.9",
   "main": "main.js",
   "productName": "OptiPix",
   "description": "Optimización inteligente de imágenes",
