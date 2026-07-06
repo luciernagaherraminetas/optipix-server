@@ -8,8 +8,7 @@
   "scripts": {
     "start": "electron .",
     "build": "electron-builder",
-    "dist": "electron-builder",
-    "postinstall": "electron-builder install-app-deps"
+    "dist": "electron-builder --publish always"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.7.2",
